@@ -1,0 +1,39 @@
+---
+- name: Backup y Notificación de Firewall Palo Alto
+  hosts: pa1420
+  connection: local
+  gather_facts: yes  # Necesario para obtener la fecha y hora del sistema
+
+  vars_files:
+    - ../vars/firewall.yml
+
+  vars:
+    smtp_server: "172.16.18.203"
+    sender_email: "backup@pasajerosquito.gob.ec"
+    recipient_email: "tu-correo@pasajerosquito.gob.ec" # <--- Cambia esto
+    file_date: "{{ ansible_date_time.date }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}"
+
+  tasks:
+    - name: Obtener configuración running (XML)
+      paloaltonetworks.panos.panos_op:
+        provider: "{{ panos_provider }}"
+        cmd: "show config running"
+      register: running_config
+
+    - name: Guardar archivo localmente en disco
+      copy:
+        content: "{{ running_config.stdout }}"
+        dest: "../backups/backup_firewall_pa1420-01_{{ file_date }}.xml"
+      register: local_file
+
+    - name: Enviar backup por correo electrónico
+      community.general.mail:
+        host: "{{ smtp_server }}"
+        port: 25  # Puerto estándar SMTP, ajústalo si usas otro
+        from: "{{ sender_email }}"
+        to: "{{ recipient_email }}"
+        subject: "backup _firewall_pa1420-01 {{ file_date }}"
+        body: "Se adjunta el backup automático del Firewall PA1420-01 generado el {{ ansible_date_time.date }} a las {{ ansible_date_time.time }}."
+        attach_files:
+          - "{{ local_file.dest }}"
+      delegate_to: localhost

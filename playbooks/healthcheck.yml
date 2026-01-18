@@ -1,0 +1,22 @@
+---
+- name: Healthcheck Palo Alto
+  hosts: pa1420
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - ../vars/firewall.yml
+
+  tasks:
+
+    - name: Ver system info
+      paloaltonetworks.panos.panos_op:
+        provider: "{{ panos_provider }}"
+        cmd: "show system info"
+      register: system_info
+
+    - name: Mostrar hostname y versión
+      debug:
+        msg:
+          - "Hostname: {{ (system_info.stdout | from_json).response.result.system.hostname }}"
+          - "Versión PAN-OS: {{ (system_info.stdout | from_json).response.result.system['sw-version'] }}"

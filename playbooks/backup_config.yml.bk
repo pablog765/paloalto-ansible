@@ -1,0 +1,22 @@
+---
+- name: Backup de configuración Palo Alto
+  hosts: pa1420
+  connection: local
+  gather_facts: no
+
+  vars_files:
+    - ../vars/firewall.yml
+
+  tasks:
+
+    - name: Obtener configuración running (XML)
+      paloaltonetworks.panos.panos_op:
+        provider: "{{ panos_provider }}"
+        cmd: "show config running"
+      register: running_config
+
+    - name: Guardar backup en archivo
+      copy:
+        content: "{{ running_config.stdout }}"
+        dest: "../backups/fw-epmtpq-01-running-{{ lookup('pipe','date +%Y%m%d-%H%M') }}.xml"
+

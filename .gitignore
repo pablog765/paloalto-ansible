@@ -1,0 +1,13 @@
+# Ignorar ambientes virtuales
+venv-panos/
+__pycache__/
+
+# Ignorar datos sensibles
+inventory/hosts.yml
+vars/firewall.yml
+
+# Ignorar los backups generados (XML)
+backups/*.xml
+
+# Archivos del sistema Mac
+.DS_Store
