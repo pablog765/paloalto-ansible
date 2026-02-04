@@ -8,7 +8,6 @@
     - ../vars/firewall.yml
 
   tasks:
-
     - name: Ver system info
       paloaltonetworks.panos.panos_op:
         provider: "{{ panos_provider }}"

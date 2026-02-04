@@ -2,15 +2,15 @@
 - name: Backup y Notificación de Firewall Palo Alto
   hosts: pa1420
   connection: local
-  gather_facts: yes  # Necesario para obtener la fecha y hora del sistema
+  gather_facts: yes
 
   vars_files:
     - ../vars/firewall.yml
 
   vars:
     smtp_server: "172.16.18.203"
-    sender_email: "backup@pasajerosquito.gob.ec"
-    recipient_email: "tu-correo@pasajerosquito.gob.ec" # <--- Cambia esto
+    sender_email: "tacacs@pasajerosquito.gob.ec"
+    recipient_email: "tacas@pasajerosquito.gob.ec"
     file_date: "{{ ansible_date_time.date }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}"
 
   tasks:
@@ -29,11 +29,11 @@
     - name: Enviar backup por correo electrónico
       community.general.mail:
         host: "{{ smtp_server }}"
-        port: 25  # Puerto estándar SMTP, ajústalo si usas otro
+        port: 25
         from: "{{ sender_email }}"
         to: "{{ recipient_email }}"
         subject: "backup _firewall_pa1420-01 {{ file_date }}"
         body: "Se adjunta el backup automático del Firewall PA1420-01 generado el {{ ansible_date_time.date }} a las {{ ansible_date_time.time }}."
-        attach_files:
+        attach:
           - "{{ local_file.dest }}"
       delegate_to: localhost
